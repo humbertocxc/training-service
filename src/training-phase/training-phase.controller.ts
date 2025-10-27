@@ -14,7 +14,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { TrainingPhaseService } from './training-phase.service';
 import { CreateTrainingPhaseDto } from './dto/create-training-phase.dto';
 import { UpdateTrainingPhaseDto } from './dto/update-training-phase.dto';
-import { TrainingPhaseResponseDto } from './training-phase-response.dto';
+import { TrainingPhaseResponseDto } from './dto/training-phase-response.dto';
 
 @ApiTags('training-phases')
 @Controller('training-phase')

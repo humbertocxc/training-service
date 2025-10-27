@@ -1,5 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TrainingPhase } from '@prisma/client';
+
+type TrainingPhaseEntity = {
+  id: number;
+  externalUserId: string;
+  name: string;
+  goalId: number | null;
+  startDate: Date;
+  endDate: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  workouts?: unknown[];
+  goal?: unknown;
+};
 
 export class TrainingPhaseResponseDto {
   @ApiProperty({ description: 'Phase ID', example: 1 })
@@ -37,16 +49,14 @@ export class TrainingPhaseResponseDto {
     description: 'Associated workouts',
     isArray: true,
   })
-  workouts?: any[];
+  workouts?: unknown[];
 
   @ApiProperty({
     description: 'Associated goal',
   })
-  goal?: any;
+  goal?: unknown;
 
-  static fromEntity(
-    phase: TrainingPhase & { workouts?: any[]; goal?: any },
-  ): TrainingPhaseResponseDto {
+  static fromEntity(phase: TrainingPhaseEntity): TrainingPhaseResponseDto {
     return {
       id: phase.id,
       externalUserId: phase.externalUserId,
