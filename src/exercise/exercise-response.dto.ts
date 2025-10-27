@@ -40,4 +40,16 @@ export class ExerciseResponseDto implements PrismaExercise {
     required: false,
   })
   imageId: string | null;
+
+  @ApiProperty({
+    description: 'Creation timestamp',
+    example: '2025-10-27T10:00:00Z',
+  })
+  createdAt: Date;
+
+  @ApiProperty({
+    description: 'Last update timestamp',
+    example: '2025-10-27T10:00:00Z',
+  })
+  updatedAt: Date;
 }

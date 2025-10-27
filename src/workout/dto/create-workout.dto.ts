@@ -59,6 +59,27 @@ export class CreateWorkoutDto {
   notes?: string;
 
   @ApiProperty({
+    description: 'Training focus tags',
+    example: ['Strength', 'Power'],
+    type: [String],
+    required: false,
+    enum: ['Strength', 'Skill', 'Endurance', 'Power', 'Mobility'],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  focusTags?: string[];
+
+  @ApiProperty({
+    description: 'Optional group external ID',
+    example: 'group-123',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  groupExternalId?: string;
+
+  @ApiProperty({
     type: [WorkoutExerciseDto],
     description: 'Must have at least 1 exercise',
   })

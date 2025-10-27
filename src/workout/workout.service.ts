@@ -14,8 +14,10 @@ export class WorkoutService {
     const created = await this.prisma.workout.create({
       data: {
         externalUserId,
+        groupExternalId: dto.groupExternalId,
         name: dto.name,
         notes: dto.notes,
+        focusTags: dto.focusTags || [],
         exercises: {
           create: dto.exercises.map((ex) => ({
             exercise: { connect: { id: ex.exerciseId } },

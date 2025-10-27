@@ -5,6 +5,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  IsNumber,
   Min,
   Max,
   ValidateNested,
@@ -45,17 +46,39 @@ export class SessionExerciseDto {
   @Min(1)
   exerciseId: number;
 
-  @ApiProperty({ example: 10, description: 'Actual reps performed (0-500)' })
+  @ApiProperty({ example: 10, description: 'Reps performed per set (0-500)' })
   @IsInt()
   @Min(0)
   @Max(500)
-  actualReps: number;
+  reps: number;
 
   @ApiProperty({ example: 3, description: 'Sets performed (1-50)' })
   @IsInt()
   @Min(1)
   @Max(50)
   sets: number;
+
+  @ApiProperty({
+    example: 0,
+    description: 'Load in kg or % bodyweight (0-1000)',
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(1000)
+  load?: number;
+
+  @ApiProperty({
+    example: 8.5,
+    description: 'Rate of Perceived Exertion (1-10)',
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  @Max(10)
+  rpe?: number;
 
   @ApiProperty({ example: 'Felt good', required: false })
   @IsOptional()
@@ -72,6 +95,15 @@ export class CreateSessionDto {
   @IsOptional()
   @IsInt()
   workoutId?: number;
+
+  @ApiProperty({
+    description: 'Optional group external ID',
+    example: 'group-123',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  groupExternalId?: string;
 
   @ApiProperty({
     example: '2025-10-27T10:00:00Z',

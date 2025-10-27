@@ -10,6 +10,7 @@ import {
   ForbiddenException,
   HttpStatus,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -19,7 +20,7 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
-import { SessionService } from './session.service';
+import { SessionService } from './services/session.service';
 import type { CreateSessionDto } from './dto/create-session.dto';
 import { QuerySessionDto } from './dto/query-session.dto';
 import { SessionResponseDto } from './session-response.dto';
@@ -189,5 +190,45 @@ export class SessionController {
   ) {
     this.validateUserAccess(req.user?.externalUserId, userId);
     return this.sessionService.findOneForUser(Number(id), userId);
+  }
+
+  @Get('progress/:exerciseId')
+  @ApiOperation({
+    summary: 'Get exercise progress history',
+    description:
+      'Returns progress history for a specific exercise including volume, tonnage, and RPE metrics over time.',
+  })
+  @ApiParam({
+    name: 'userId',
+    type: 'string',
+    description: 'User identifier (must match JWT userId)',
+  })
+  @ApiParam({
+    name: 'exerciseId',
+    type: 'number',
+    description: 'Exercise ID to track progress for',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: 'number',
+    description: 'Max number of sessions to return (default: 50)',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Exercise progress history retrieved successfully.',
+  })
+  async getExerciseProgress(
+    @Req() req: Request,
+    @Param('userId') userId: string,
+    @Param('exerciseId', ParseIntPipe) exerciseId: number,
+    @Query('limit') limit?: number,
+  ) {
+    this.validateUserAccess(req.user?.externalUserId, userId);
+    return this.sessionService.getExerciseProgress(
+      userId,
+      exerciseId,
+      limit ? Number(limit) : undefined,
+    );
   }
 }
