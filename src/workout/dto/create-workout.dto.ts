@@ -7,6 +7,8 @@ import {
   ValidateNested,
   IsInt,
   Min,
+  Max,
+  ArrayMinSize,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -16,17 +18,27 @@ export class WorkoutExerciseDto {
   @Min(1)
   exerciseId: number;
 
-  @ApiProperty({ example: 3 })
+  @ApiProperty({ example: 3, description: 'Number of sets (1-20)' })
   @IsInt()
+  @Min(1)
+  @Max(20)
   sets: number;
 
-  @ApiProperty({ example: 8 })
+  @ApiProperty({ example: 8, description: 'Target reps per set (1-100)' })
   @IsInt()
+  @Min(1)
+  @Max(100)
   reps: number;
 
-  @ApiProperty({ example: 60, required: false })
+  @ApiProperty({
+    example: 60,
+    required: false,
+    description: 'Rest between sets in seconds (0-600)',
+  })
   @IsOptional()
   @IsInt()
+  @Min(0)
+  @Max(600)
   rest?: number;
 
   @ApiProperty({ example: 'Use full range of motion', required: false })
@@ -46,8 +58,12 @@ export class CreateWorkoutDto {
   @IsString()
   notes?: string;
 
-  @ApiProperty({ type: [WorkoutExerciseDto] })
+  @ApiProperty({
+    type: [WorkoutExerciseDto],
+    description: 'Must have at least 1 exercise',
+  })
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => WorkoutExerciseDto)
   exercises: WorkoutExerciseDto[];

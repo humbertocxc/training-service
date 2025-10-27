@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Session, SessionExercise } from '@prisma/client';
 import { CreateSessionDto } from './dto/create-session.dto';
+import { QuerySessionDto } from './dto/query-session.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -34,13 +35,29 @@ export class SessionService {
 
   async findByUser(
     externalUserId: string,
+    query?: QuerySessionDto,
   ): Promise<
     (Session & { exercises: (SessionExercise & { exercise: any })[] })[]
   > {
+    const { from, to, limit = 50, offset = 0 } = query || {};
+
+    const dateFilter: { gte?: Date; lte?: Date } = {};
+    if (from) {
+      dateFilter.gte = new Date(from);
+    }
+    if (to) {
+      dateFilter.lte = new Date(to);
+    }
+
     return this.prisma.session.findMany({
-      where: { externalUserId },
+      where: {
+        externalUserId,
+        ...(Object.keys(dateFilter).length > 0 && { date: dateFilter }),
+      },
       include: { exercises: { include: { exercise: true } } },
       orderBy: { date: 'desc' },
+      take: limit,
+      skip: offset,
     });
   }
 
