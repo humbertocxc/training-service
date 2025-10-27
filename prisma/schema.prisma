@@ -8,28 +8,35 @@ datasource db {
 }
 
 model Exercise {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  category    String
-  description String
-  mediaUrl    String?
-  imageId     String?
+  id              Int               @id @default(autoincrement())
+  name            String            @unique
+  category        String
+  description     String
+  mediaUrl        String?
+  imageId         String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @default(now()) @updatedAt
   WorkoutExercise WorkoutExercise[]
   SessionExercise SessionExercise[]
 }
 
 model Workout {
-  id             Int      @id @default(autoincrement())
-  externalUserId String
-  name           String
-  notes          String?
-  exercises      WorkoutExercise[]
-  sessions       Session[]
+  id                Int               @id @default(autoincrement())
+  externalUserId    String
+  groupExternalId   String?
+  name              String
+  notes             String?
+  focusTags         String[]          @default([])
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @default(now()) @updatedAt
+  exercises         WorkoutExercise[]
+  sessions          Session[]
+  TrainingPhase     TrainingPhase[]   @relation("PhaseWorkouts")
 }
 
 model WorkoutExercise {
   id         Int      @id @default(autoincrement())
-  workout    Workout  @relation(fields: [workoutId], references: [id])
+  workout    Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
   workoutId  Int
   exercise   Exercise @relation(fields: [exerciseId], references: [id])
   exerciseId Int
@@ -37,26 +44,68 @@ model WorkoutExercise {
   reps       Int
   rest       Int
   notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
 }
 
 model Session {
-  id             Int      @id @default(autoincrement())
-  externalUserId String
-  workout        Workout? @relation(fields: [workoutId], references: [id])
-  workoutId      Int?
-  date           DateTime
-  duration       Int
-  notes          String?
-  exercises      SessionExercise[]
+  id              Int               @id @default(autoincrement())
+  externalUserId  String
+  groupExternalId String?
+  workout         Workout?          @relation(fields: [workoutId], references: [id])
+  workoutId       Int?
+  date            DateTime
+  duration        Int
+  notes           String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @default(now()) @updatedAt
+  exercises       SessionExercise[]
 }
 
 model SessionExercise {
   id         Int      @id @default(autoincrement())
-  session    Session  @relation(fields: [sessionId], references: [id])
+  session    Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   sessionId  Int
   exercise   Exercise @relation(fields: [exerciseId], references: [id])
   exerciseId Int
-  actualReps Int
   sets       Int
+  reps       Int
+  load       Float    @default(0) // kg or % bodyweight
+  rpe        Float?   // Rate of Perceived Exertion (1-10)
+  tonnage    Float    @default(0) // Auto-computed: load × reps × sets
   notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+}
+
+model Goal {
+  id              Int             @id @default(autoincrement())
+  externalUserId  String
+  name            String
+  type            String          // 'reps', 'load', 'time', 'skill'
+  targetValue     Float
+  currentValue    Float           @default(0)
+  progress        Float           @default(0) // percentage 0-100
+  status          String          @default("active") // 'active', 'completed', 'paused', 'abandoned'
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @default(now()) @updatedAt
+  TrainingPhase   TrainingPhase[]
+
+  @@index([externalUserId])
+}
+
+model TrainingPhase {
+  id             Int       @id @default(autoincrement())
+  externalUserId String
+  name           String
+  goal           Goal?     @relation(fields: [goalId], references: [id])
+  goalId         Int?
+  startDate      DateTime
+  endDate        DateTime?
+  workouts       Workout[] @relation("PhaseWorkouts")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
+
+  @@index([externalUserId])
+  @@index([startDate, endDate])
 }
