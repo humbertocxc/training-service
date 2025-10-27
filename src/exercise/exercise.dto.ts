@@ -30,8 +30,21 @@ export class ExerciseDto {
   @IsOptional()
   description?: string;
 
-  @ApiProperty({ example: 'https://example.com/pushup.jpg' })
+  @ApiProperty({
+    example: 'https://example.com/pushup.jpg',
+    required: false,
+    description: 'Direct URL to image (fallback)',
+  })
   @IsUrl()
   @IsOptional()
   mediaUrl?: string;
+
+  @ApiProperty({
+    example: 'img_123abc',
+    required: false,
+    description: 'Image ID from image microservice',
+  })
+  @IsString()
+  @IsOptional()
+  imageId?: string;
 }

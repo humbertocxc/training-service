@@ -8,7 +8,9 @@ export class ExerciseService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit(): Promise<void> {
+    console.log('🌱 Seeding exercises on app startup...');
     await this.seedExercises();
+    console.log('✅ Exercise seeding completed');
   }
 
   async seedExercises(): Promise<void> {
@@ -17,31 +19,36 @@ export class ExerciseService implements OnModuleInit {
         name: 'Push Up',
         category: ExerciseCategory.PUSH,
         description: 'A basic push exercise.',
-        mediaUrl: 'https://example.com/pushup.jpg',
+        mediaUrl: null,
+        imageId: null,
       },
       {
         name: 'Pull Up',
         category: ExerciseCategory.PULL,
         description: 'A basic pull exercise.',
-        mediaUrl: 'https://example.com/pullup.jpg',
+        mediaUrl: null,
+        imageId: null,
       },
       {
         name: 'Plank',
         category: ExerciseCategory.CORE,
         description: 'Core stability exercise.',
-        mediaUrl: 'https://example.com/plank.jpg',
+        mediaUrl: null,
+        imageId: null,
       },
       {
         name: 'Squat',
         category: ExerciseCategory.LEGS,
         description: 'Leg strength exercise.',
-        mediaUrl: 'https://example.com/squat.jpg',
+        mediaUrl: null,
+        imageId: null,
       },
       {
         name: 'Handstand',
         category: ExerciseCategory.SKILL,
         description: 'Skill-based exercise.',
-        mediaUrl: 'https://example.com/handstand.jpg',
+        mediaUrl: null,
+        imageId: null,
       },
     ];
     for (const ex of defaultExercises) {

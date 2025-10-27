@@ -12,7 +12,8 @@ model Exercise {
   name        String   @unique
   category    String
   description String
-  mediaUrl    String
+  mediaUrl    String?
+  imageId     String?
   WorkoutExercise WorkoutExercise[]
   SessionExercise SessionExercise[]
 }
