@@ -1,6 +1,3 @@
-docker-compose up -d db
-dotenv -e .env npx prisma migrate dev --name init
-dotenv -e .env npx ts-node src/seed.ts
 #!/bin/bash
 
 # Colors for output

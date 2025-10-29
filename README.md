@@ -70,3 +70,27 @@ Next steps / where to look
 - Review `prisma/schema.prisma` for the canonical model
 
 License: MIT
+
+## Events & RabbitMQ
+
+This service publishes domain events for training actions (for example: session.completed, workout.created) so other services can react asynchronously. For now the messages are published to a topic exchange named by `RABBITMQ_EXCHANGE` and routing keys describe the event type.
+
+Why publish events
+
+- Decouples training data producers from consumers (periodization, analytics, notifications).
+- Allows the future `periodization-service` to react to session completions and update periodized plans.
+
+Development / running RabbitMQ
+
+- The project includes a local RabbitMQ service in `docker-compose.yml`. To start RabbitMQ and Postgres for development run:
+
+```sh
+docker compose up -d postgres rabbitmq
+```
+
+- Environment variables (see `.env`):
+  - `RABBITMQ_URL` (default: `amqp://rabbitmq:5672`)
+  - `RABBITMQ_EXCHANGE` (default: `training.events`)
+  - `RABBITMQ_EXCHANGE_TYPE` (default: `topic`)
+
+If you prefer to start RabbitMQ manually (e.g. on a different host), set `RABBITMQ_URL` in your `.env` to point to the broker and start the app normally.
