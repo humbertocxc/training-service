@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import {
   IsString,
   IsOptional,
@@ -51,3 +51,13 @@ export class CreateTrainingPhaseDto {
   @IsInt({ each: true })
   workoutIds?: number[];
 }
+
+export const createTrainingPhaseApiOperation = ApiOperation({
+  summary: 'Create a new training phase',
+});
+
+export const createTrainingPhaseApiResponseOk = ApiResponse({
+  status: 201,
+  description: 'Training phase created successfully',
+  type: CreateTrainingPhaseDto,
+});

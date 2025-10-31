@@ -1,4 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+} from '@nestjs/swagger';
 
 type TrainingPhaseEntity = {
   id: number;
@@ -71,3 +76,39 @@ export class TrainingPhaseResponseDto {
     };
   }
 }
+
+export const listTrainingPhasesApiOperation = ApiOperation({
+  summary: 'Get all training phases for current user',
+});
+
+export const listTrainingPhasesApiResponseOk = ApiResponse({
+  status: 200,
+  description: 'List of training phases',
+  type: [TrainingPhaseResponseDto],
+});
+
+export const getTrainingPhaseApiOperation = ApiOperation({
+  summary: 'Get a specific training phase',
+});
+
+export const getTrainingPhaseApiParam = ApiParam({
+  name: 'id',
+  description: 'Training phase ID',
+  type: Number,
+});
+
+export const getTrainingPhaseApiResponseOk = ApiResponse({
+  status: 200,
+  description: 'Training phase details',
+  type: TrainingPhaseResponseDto,
+});
+
+export const getCurrentTrainingPhasesApiOperation = ApiOperation({
+  summary: 'Get currently active training phases',
+});
+
+export const getCurrentTrainingPhasesApiResponseOk = ApiResponse({
+  status: 200,
+  description: 'List of current training phases',
+  type: [TrainingPhaseResponseDto],
+});

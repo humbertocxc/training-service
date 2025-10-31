@@ -1,4 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+} from '@nestjs/swagger';
+import { HttpStatus } from '@nestjs/common';
 import { Goal } from '@prisma/client';
 
 export class GoalResponseDto {
@@ -55,3 +63,48 @@ export class GoalResponseDto {
     };
   }
 }
+
+export const goalApiTags = ApiTags('goals');
+export const goalApiBearerAuth = ApiBearerAuth('JWT-auth');
+
+export const listGoalsApiOperation = ApiOperation({
+  summary: 'Get all goals for current user',
+});
+
+export const listGoalsApiResponseOk = ApiResponse({
+  status: HttpStatus.OK,
+  description: 'List of goals',
+  type: [GoalResponseDto],
+});
+
+export const getGoalApiOperation = ApiOperation({
+  summary: 'Get a specific goal',
+});
+
+export const getGoalApiParam = ApiParam({
+  name: 'id',
+  type: 'number',
+  description: 'Goal ID',
+});
+
+export const getGoalApiResponseOk = ApiResponse({
+  status: HttpStatus.OK,
+  description: 'Goal details',
+  type: GoalResponseDto,
+});
+
+export const updateProgressGoalApiOperation = ApiOperation({
+  summary: 'Update goal progress',
+});
+
+export const updateProgressGoalApiParam = ApiParam({
+  name: 'id',
+  type: 'number',
+  description: 'Goal ID',
+});
+
+export const updateProgressGoalApiResponseOk = ApiResponse({
+  status: HttpStatus.OK,
+  description: 'Progress updated successfully',
+  type: GoalResponseDto,
+});

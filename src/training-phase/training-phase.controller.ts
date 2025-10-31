@@ -11,16 +11,34 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { TrainingPhaseService } from './training-phase.service';
-import { CreateTrainingPhaseDto } from './dto/create-training-phase.dto';
-import { UpdateTrainingPhaseDto } from './dto/update-training-phase.dto';
-import { TrainingPhaseResponseDto } from './dto/training-phase-response.dto';
+import {
+  CreateTrainingPhaseDto,
+  createTrainingPhaseApiOperation,
+  createTrainingPhaseApiResponseOk,
+} from './dto/create-training-phase.dto';
+import {
+  UpdateTrainingPhaseDto,
+  updateTrainingPhaseApiOperation,
+  updateTrainingPhaseApiParam,
+  updateTrainingPhaseApiResponseOk,
+} from './dto/update-training-phase.dto';
+import {
+  TrainingPhaseResponseDto,
+  listTrainingPhasesApiOperation,
+  listTrainingPhasesApiResponseOk,
+  getTrainingPhaseApiOperation,
+  getTrainingPhaseApiParam,
+  getTrainingPhaseApiResponseOk,
+  getCurrentTrainingPhasesApiOperation,
+  getCurrentTrainingPhasesApiResponseOk,
+} from './dto/training-phase-response.dto';
+import {
+  deleteTrainingPhaseApiOperation,
+  deleteTrainingPhaseApiParam,
+  deleteTrainingPhaseApiResponseOk,
+} from './dto/delete-training-phase.dto';
 import type { Request } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -40,12 +58,8 @@ export class TrainingPhaseController {
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create a new training phase' })
-  @ApiResponse({
-    status: 201,
-    description: 'Training phase created successfully',
-    type: TrainingPhaseResponseDto,
-  })
+  @createTrainingPhaseApiOperation
+  @createTrainingPhaseApiResponseOk
   async create(
     @Req() req: Request,
     @Body() dto: CreateTrainingPhaseDto,
@@ -56,12 +70,8 @@ export class TrainingPhaseController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all training phases for current user' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of training phases',
-    type: [TrainingPhaseResponseDto],
-  })
+  @listTrainingPhasesApiOperation
+  @listTrainingPhasesApiResponseOk
   async findAll(@Req() req: Request): Promise<TrainingPhaseResponseDto[]> {
     const userId = this.getUserIdOrThrow(req);
     const phases = await this.trainingPhaseService.findByUser(userId);
@@ -69,12 +79,8 @@ export class TrainingPhaseController {
   }
 
   @Get('current')
-  @ApiOperation({ summary: 'Get currently active training phases' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of current training phases',
-    type: [TrainingPhaseResponseDto],
-  })
+  @getCurrentTrainingPhasesApiOperation
+  @getCurrentTrainingPhasesApiResponseOk
   async getCurrentPhases(
     @Req() req: Request,
   ): Promise<TrainingPhaseResponseDto[]> {
@@ -84,12 +90,9 @@ export class TrainingPhaseController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a specific training phase' })
-  @ApiResponse({
-    status: 200,
-    description: 'Training phase details',
-    type: TrainingPhaseResponseDto,
-  })
+  @getTrainingPhaseApiOperation
+  @getTrainingPhaseApiParam
+  @getTrainingPhaseApiResponseOk
   async findOne(
     @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
@@ -100,12 +103,9 @@ export class TrainingPhaseController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update a training phase' })
-  @ApiResponse({
-    status: 200,
-    description: 'Training phase updated successfully',
-    type: TrainingPhaseResponseDto,
-  })
+  @updateTrainingPhaseApiOperation
+  @updateTrainingPhaseApiParam
+  @updateTrainingPhaseApiResponseOk
   async update(
     @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
@@ -117,11 +117,9 @@ export class TrainingPhaseController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a training phase' })
-  @ApiResponse({
-    status: 200,
-    description: 'Training phase deleted successfully',
-  })
+  @deleteTrainingPhaseApiOperation
+  @deleteTrainingPhaseApiParam
+  @deleteTrainingPhaseApiResponseOk
   async delete(
     @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,

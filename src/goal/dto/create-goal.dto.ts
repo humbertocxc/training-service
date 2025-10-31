@@ -1,5 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { HttpStatus } from '@nestjs/common';
 import { IsString, IsNumber, IsIn, IsOptional, Min } from 'class-validator';
+import { GoalResponseDto } from '../goal-response.dto';
 
 export class CreateGoalDto {
   @ApiProperty({
@@ -35,3 +37,13 @@ export class CreateGoalDto {
   @Min(0)
   currentValue?: number;
 }
+
+export const createGoalApiOperation = ApiOperation({
+  summary: 'Create a new goal',
+});
+
+export const createGoalApiResponseCreated = ApiResponse({
+  status: HttpStatus.CREATED,
+  description: 'Goal created successfully',
+  type: GoalResponseDto,
+});

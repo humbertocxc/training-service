@@ -1,5 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+} from '@nestjs/swagger';
+import { HttpStatus } from '@nestjs/common';
 import { IsString, IsNumber, IsIn, IsOptional, Min } from 'class-validator';
+import { GoalResponseDto } from '../goal-response.dto';
 
 export class UpdateGoalDto {
   @ApiProperty({
@@ -41,3 +48,19 @@ export class UpdateGoalDto {
   @IsIn(['active', 'completed', 'paused', 'abandoned'])
   status?: string;
 }
+
+export const updateGoalApiOperation = ApiOperation({
+  summary: 'Update a goal',
+});
+
+export const updateGoalApiParam = ApiParam({
+  name: 'id',
+  type: 'number',
+  description: 'Goal ID',
+});
+
+export const updateGoalApiResponseOk = ApiResponse({
+  status: HttpStatus.OK,
+  description: 'Goal updated successfully',
+  type: GoalResponseDto,
+});

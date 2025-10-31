@@ -1,4 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
+import { HttpStatus } from '@nestjs/common';
 import { ExerciseResponseDto } from '../exercise/exercise-response.dto';
 
 export class SessionExerciseResponseDto {
@@ -79,3 +88,122 @@ export class SessionResponseDto {
   })
   exercises: SessionExerciseResponseDto[];
 }
+
+export const sessionApiTags = ApiTags('sessions');
+export const sessionApiBearerAuth = ApiBearerAuth('JWT-auth');
+
+export const listSessionApiOperation = ApiOperation({
+  summary: 'List training sessions',
+  description:
+    'Returns training sessions for the authenticated user with optional date filtering and pagination.',
+});
+
+export const listSessionApiQueryFrom = ApiQuery({
+  name: 'from',
+  required: false,
+  type: String,
+  description: 'Filter sessions from this date (ISO 8601)',
+  example: '2025-01-01T00:00:00Z',
+});
+
+export const listSessionApiQueryTo = ApiQuery({
+  name: 'to',
+  required: false,
+  type: String,
+  description: 'Filter sessions until this date (ISO 8601)',
+  example: '2025-12-31T23:59:59Z',
+});
+
+export const listSessionApiQueryLimit = ApiQuery({
+  name: 'limit',
+  required: false,
+  type: Number,
+  description: 'Maximum number of sessions to return (1-100)',
+  example: 50,
+});
+
+export const listSessionApiQueryOffset = ApiQuery({
+  name: 'offset',
+  required: false,
+  type: Number,
+  description: 'Number of sessions to skip for pagination',
+  example: 0,
+});
+
+export const listSessionApiResponseOk = ApiResponse({
+  status: HttpStatus.OK,
+  description: 'List of user training sessions.',
+  type: [SessionResponseDto],
+});
+
+export const listSessionApiResponseBadRequest = ApiResponse({
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Invalid query parameters.',
+});
+
+export const listSessionApiResponseUnauthorized = ApiResponse({
+  status: HttpStatus.UNAUTHORIZED,
+  description: 'Missing or invalid JWT token.',
+});
+
+export const listSessionApiResponseForbidden = ApiResponse({
+  status: HttpStatus.FORBIDDEN,
+  description: "Attempting to access another user's resources.",
+});
+
+export const getSessionApiOperation = ApiOperation({
+  summary: 'Get training session by ID',
+  description:
+    'Returns a single training session by ID for the authenticated user.',
+});
+
+export const getSessionApiParam = ApiParam({
+  name: 'id',
+  type: 'number',
+  description: 'Training session ID',
+});
+
+export const getSessionApiResponseOk = ApiResponse({
+  status: HttpStatus.OK,
+  description: 'Training session found.',
+  type: SessionResponseDto,
+});
+
+export const getSessionApiResponseUnauthorized = ApiResponse({
+  status: HttpStatus.UNAUTHORIZED,
+  description: 'Missing or invalid JWT token.',
+});
+
+export const getSessionApiResponseForbidden = ApiResponse({
+  status: HttpStatus.FORBIDDEN,
+  description: "Attempting to access another user's resources.",
+});
+
+export const getSessionApiResponseNotFound = ApiResponse({
+  status: HttpStatus.NOT_FOUND,
+  description: 'Training session not found or does not belong to user.',
+});
+
+export const getExerciseProgressApiOperation = ApiOperation({
+  summary: 'Get exercise progress history',
+  description:
+    'Returns progress history for a specific exercise including volume, tonnage, and RPE metrics over time.',
+});
+
+export const getExerciseProgressApiParam = ApiParam({
+  name: 'exerciseId',
+  type: 'number',
+  description: 'Exercise ID to track progress for',
+});
+
+export const getExerciseProgressApiQueryLimit = ApiQuery({
+  name: 'limit',
+  required: false,
+  type: 'number',
+  description: 'Max number of sessions to return (default: 50)',
+});
+
+export const getExerciseProgressApiResponseOk = ApiResponse({
+  status: HttpStatus.OK,
+  description: 'Exercise progress history retrieved successfully.',
+});

@@ -1,4 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { HttpStatus } from '@nestjs/common';
 import {
   IsArray,
   IsDateString,
@@ -14,6 +15,7 @@ import {
   ValidationOptions,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { SessionResponseDto } from '../session-response.dto';
 
 function IsNotFutureDated(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
@@ -134,3 +136,30 @@ export class CreateSessionDto {
   @Type(() => SessionExerciseDto)
   exercises: SessionExerciseDto[];
 }
+
+export const createSessionApiOperation = ApiOperation({
+  summary: 'Log training session',
+  description:
+    'Records a completed training session for the authenticated user. Session duration must be at least 60 seconds and date cannot be more than 24 hours in the future.',
+});
+
+export const createSessionApiResponseCreated = ApiResponse({
+  status: HttpStatus.CREATED,
+  description: 'Training session successfully logged.',
+  type: SessionResponseDto,
+});
+
+export const createSessionApiResponseBadRequest = ApiResponse({
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Invalid input data or validation errors.',
+});
+
+export const createSessionApiResponseUnauthorized = ApiResponse({
+  status: HttpStatus.UNAUTHORIZED,
+  description: 'Missing or invalid JWT token.',
+});
+
+export const createSessionApiResponseForbidden = ApiResponse({
+  status: HttpStatus.FORBIDDEN,
+  description: "Attempting to access another user's resources.",
+});

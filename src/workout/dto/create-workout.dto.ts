@@ -1,3 +1,6 @@
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { HttpStatus } from '@nestjs/common';
+import { WorkoutResponseDto } from './workout-response.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
@@ -89,3 +92,30 @@ export class CreateWorkoutDto {
   @Type(() => WorkoutExerciseDto)
   exercises: WorkoutExerciseDto[];
 }
+
+export const createWorkoutApiOperation = ApiOperation({
+  summary: 'Create workout template',
+  description:
+    'Creates a new workout template for the authenticated user. A workout must have at least one exercise.',
+});
+
+export const createWorkoutApiResponseCreated = ApiResponse({
+  status: HttpStatus.CREATED,
+  description: 'Workout template successfully created.',
+  type: WorkoutResponseDto,
+});
+
+export const createWorkoutApiResponseBadRequest = ApiResponse({
+  status: HttpStatus.BAD_REQUEST,
+  description: 'Invalid input data or validation errors.',
+});
+
+export const createWorkoutApiResponseUnauthorized = ApiResponse({
+  status: HttpStatus.UNAUTHORIZED,
+  description: 'Missing or invalid JWT token.',
+});
+
+export const createWorkoutApiResponseForbidden = ApiResponse({
+  status: HttpStatus.FORBIDDEN,
+  description: "Attempting to access another user's resources.",
+});

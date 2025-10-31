@@ -11,21 +11,41 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
 import { GoalService } from './goal.service';
 import { CreateGoalDto } from './dto/create-goal.dto';
 import { UpdateGoalDto } from './dto/update-goal.dto';
 import { GoalResponseDto } from './goal-response.dto';
 import type { Request } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import {
+  goalApiTags,
+  goalApiBearerAuth,
+  listGoalsApiOperation,
+  listGoalsApiResponseOk,
+  getGoalApiOperation,
+  getGoalApiParam,
+  getGoalApiResponseOk,
+  updateProgressGoalApiOperation,
+  updateProgressGoalApiParam,
+  updateProgressGoalApiResponseOk,
+} from './goal-response.dto';
+import {
+  createGoalApiOperation,
+  createGoalApiResponseCreated,
+} from './dto/create-goal.dto';
+import {
+  updateGoalApiOperation,
+  updateGoalApiParam,
+  updateGoalApiResponseOk,
+} from './dto/update-goal.dto';
+import {
+  deleteGoalApiOperation,
+  deleteGoalApiParam,
+  deleteGoalApiResponseOk,
+} from './dto/delete-goal.dto';
 
-@ApiTags('goals')
-@ApiBearerAuth('JWT-auth')
+@goalApiTags
+@goalApiBearerAuth
 @UseGuards(JwtAuthGuard)
 @Controller('goals')
 export class GoalController {
@@ -40,12 +60,8 @@ export class GoalController {
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create a new goal' })
-  @ApiResponse({
-    status: 201,
-    description: 'Goal created successfully',
-    type: GoalResponseDto,
-  })
+  @createGoalApiOperation
+  @createGoalApiResponseCreated
   async create(
     @Req() req: Request,
     @Body() dto: CreateGoalDto,
@@ -56,12 +72,8 @@ export class GoalController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all goals for current user' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of goals',
-    type: [GoalResponseDto],
-  })
+  @listGoalsApiOperation
+  @listGoalsApiResponseOk
   async findAll(@Req() req: Request): Promise<GoalResponseDto[]> {
     const userId = this.getUserIdOrThrow(req);
     const goals = await this.goalService.findByUser(userId);
@@ -69,12 +81,9 @@ export class GoalController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a specific goal' })
-  @ApiResponse({
-    status: 200,
-    description: 'Goal details',
-    type: GoalResponseDto,
-  })
+  @getGoalApiOperation
+  @getGoalApiParam
+  @getGoalApiResponseOk
   async findOne(
     @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
@@ -85,12 +94,9 @@ export class GoalController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update a goal' })
-  @ApiResponse({
-    status: 200,
-    description: 'Goal updated successfully',
-    type: GoalResponseDto,
-  })
+  @updateGoalApiOperation
+  @updateGoalApiParam
+  @updateGoalApiResponseOk
   async update(
     @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
@@ -102,11 +108,9 @@ export class GoalController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a goal' })
-  @ApiResponse({
-    status: 200,
-    description: 'Goal deleted successfully',
-  })
+  @deleteGoalApiOperation
+  @deleteGoalApiParam
+  @deleteGoalApiResponseOk
   async delete(
     @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
@@ -117,12 +121,9 @@ export class GoalController {
   }
 
   @Put(':id/progress')
-  @ApiOperation({ summary: 'Update goal progress' })
-  @ApiResponse({
-    status: 200,
-    description: 'Progress updated successfully',
-    type: GoalResponseDto,
-  })
+  @updateProgressGoalApiOperation
+  @updateProgressGoalApiParam
+  @updateProgressGoalApiResponseOk
   async updateProgress(
     @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
