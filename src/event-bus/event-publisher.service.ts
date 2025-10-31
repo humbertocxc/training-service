@@ -78,7 +78,8 @@ export class EventPublisherService implements OnModuleInit, OnModuleDestroy {
       const message = JSON.stringify({
         eventType,
         timestamp: new Date().toISOString(),
-        data: payload,
+        userExternalId: payload.userExternalId,
+        ...payload,
       });
 
       const publishOptions: Options.Publish = {
@@ -93,9 +94,7 @@ export class EventPublisherService implements OnModuleInit, OnModuleDestroy {
         publishOptions,
       );
 
-      this.logger.debug(
-        `Event published: ${eventType} to exchange: ${this.exchange}`,
-      );
+      this.logger.log(`[Event Published] ${eventType}`);
     } catch (error) {
       this.logger.error(`Failed to publish event: ${eventType}`, error.stack);
       throw error;

@@ -24,8 +24,10 @@ const customBase = {
 };
 
 const serviceAndTestOverrides = {
-  files: ['src/**/*.service.ts', 'src/**/*.controller.ts', 'src/**/services/**/*.ts', 'test/**/*.ts'],
+  files: ['src/**/*.service.ts', 'src/**/*.strategy.ts', 'src/**/*.controller.ts', 'src/**/services/**/*.ts', 'test/**/*.ts'],
   rules: {
+    '@typescript-eslint/no-floating-promises': 'warn',
+    '@typescript-eslint/no-unsafe-argument': 'off',
     '@typescript-eslint/no-unsafe-assignment': 'off',
     '@typescript-eslint/no-unsafe-member-access': 'off',
     '@typescript-eslint/no-unsafe-call': 'off',

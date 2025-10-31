@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  ForbiddenException,
   UnauthorizedException,
   HttpStatus,
 } from '@nestjs/common';
@@ -27,22 +26,16 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @ApiTags('workouts')
 @ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
-@Controller('users/:userId/workouts')
+@Controller('workouts')
 export class WorkoutController {
   constructor(private readonly workoutService: WorkoutService) {}
 
-  private validateUserAccess(
-    jwtUserId: string | undefined,
-    urlUserId: string,
-  ): void {
+  private getUserIdOrThrow(req: Request): string {
+    const jwtUserId = req.user?.externalUserId;
     if (!jwtUserId) {
       throw new UnauthorizedException('Missing user authentication');
     }
-    if (jwtUserId !== urlUserId) {
-      throw new ForbiddenException(
-        'Access denied: You can only access your own resources',
-      );
-    }
+    return jwtUserId;
   }
 
   @Post()
@@ -50,11 +43,6 @@ export class WorkoutController {
     summary: 'Create workout template',
     description:
       'Creates a new workout template for the authenticated user. A workout must have at least one exercise.',
-  })
-  @ApiParam({
-    name: 'userId',
-    type: 'string',
-    description: 'User identifier (must match JWT userId)',
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -73,12 +61,8 @@ export class WorkoutController {
     status: HttpStatus.FORBIDDEN,
     description: "Attempting to access another user's resources.",
   })
-  async create(
-    @Req() req: Request,
-    @Param('userId') userId: string,
-    @Body() dto: CreateWorkoutDto,
-  ) {
-    this.validateUserAccess(req.user?.externalUserId, userId);
+  async create(@Req() req: Request, @Body() dto: CreateWorkoutDto) {
+    const userId = this.getUserIdOrThrow(req);
     return this.workoutService.create(userId, dto);
   }
 
@@ -86,11 +70,6 @@ export class WorkoutController {
   @ApiOperation({
     summary: 'List workout templates',
     description: 'Returns all workout templates for the authenticated user.',
-  })
-  @ApiParam({
-    name: 'userId',
-    type: 'string',
-    description: 'User identifier (must match JWT userId)',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -105,8 +84,8 @@ export class WorkoutController {
     status: HttpStatus.FORBIDDEN,
     description: "Attempting to access another user's resources.",
   })
-  async list(@Req() req: Request, @Param('userId') userId: string) {
-    this.validateUserAccess(req.user?.externalUserId, userId);
+  async list(@Req() req: Request) {
+    const userId = this.getUserIdOrThrow(req);
     return this.workoutService.findByUser(userId);
   }
 
@@ -115,11 +94,6 @@ export class WorkoutController {
     summary: 'Get workout template by ID',
     description:
       'Returns a single workout template by ID for the authenticated user.',
-  })
-  @ApiParam({
-    name: 'userId',
-    type: 'string',
-    description: 'User identifier (must match JWT userId)',
   })
   @ApiParam({
     name: 'id',
@@ -143,12 +117,8 @@ export class WorkoutController {
     status: HttpStatus.NOT_FOUND,
     description: 'Workout template not found or does not belong to user.',
   })
-  async get(
-    @Req() req: Request,
-    @Param('userId') userId: string,
-    @Param('id') id: string,
-  ) {
-    this.validateUserAccess(req.user?.externalUserId, userId);
+  async get(@Req() req: Request, @Param('id') id: string) {
+    const userId = this.getUserIdOrThrow(req);
     return this.workoutService.findOneForUser(Number(id), userId);
   }
 
@@ -156,11 +126,6 @@ export class WorkoutController {
   @ApiOperation({
     summary: 'Delete workout template',
     description: 'Deletes a workout template by ID for the authenticated user.',
-  })
-  @ApiParam({
-    name: 'userId',
-    type: 'string',
-    description: 'User identifier (must match JWT userId)',
   })
   @ApiParam({
     name: 'id',
@@ -183,12 +148,8 @@ export class WorkoutController {
     status: HttpStatus.NOT_FOUND,
     description: 'Workout template not found or does not belong to user.',
   })
-  async remove(
-    @Req() req: Request,
-    @Param('userId') userId: string,
-    @Param('id') id: string,
-  ) {
-    this.validateUserAccess(req.user?.externalUserId, userId);
+  async remove(@Req() req: Request, @Param('id') id: string) {
+    const userId = this.getUserIdOrThrow(req);
     return this.workoutService.deleteForUser(Number(id), userId);
   }
 }

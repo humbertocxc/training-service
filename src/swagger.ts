@@ -2,9 +2,9 @@ import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export function setupSwagger(app: INestApplication) {
-  if (process.env.NODE_ENV === 'production') {
-    return;
-  }
+  // if (process.env.NODE_ENV === 'production') {
+  //   return;
+  // }
 
   const config = new DocumentBuilder()
     .setTitle('Calisthenics Training Service')

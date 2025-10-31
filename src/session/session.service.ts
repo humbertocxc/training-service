@@ -8,12 +8,15 @@ import {
   SessionCompletedEvent,
   SESSION_COMPLETED_EVENT,
 } from '../events/session-completed.event';
+import { EventPublisherService } from '../event-bus/event-publisher.service';
+import { SessionCompletedEventDto } from '../event-bus/dto/session-completed-event.dto';
 
 @Injectable()
 export class SessionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly eventPublisher: EventPublisherService,
   ) {}
 
   async create(
@@ -90,6 +93,26 @@ export class SessionService {
     };
 
     this.eventEmitter.emit(SESSION_COMPLETED_EVENT, event);
+
+    const eventDto: SessionCompletedEventDto = {
+      eventType: 'training.session.completed',
+      timestamp: new Date().toISOString(),
+      userExternalId: session.externalUserId,
+      session: {
+        sessionId: session.id.toString(),
+        workoutId: session.workoutId?.toString(),
+        date: session.date.toISOString(),
+        duration: session.duration,
+        perceivedEffort: averageRpe,
+        notes: session.notes ?? undefined,
+      },
+    };
+
+    this.eventPublisher
+      .publish('training.session.completed', eventDto)
+      .catch((error) => {
+        console.error('Failed to publish session.completed event:', error);
+      });
   }
 
   async findByUser(

@@ -15,20 +15,31 @@ export class JwtAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
     const authHeader = request.headers['authorization'];
+
     if (!authHeader)
       throw new UnauthorizedException('Missing Authorization header');
+
     const token = String(authHeader).replace('Bearer ', '');
+
     try {
-      const publicKey = this.config.get<string>('JWT_PUBLIC_KEY');
-      if (!publicKey) {
-        throw new UnauthorizedException('JWT public key not configured');
+      const secret = this.config.get<string>('JWT_SECRET');
+      if (!secret) {
+        throw new UnauthorizedException('JWT secret not configured');
       }
-      const payload = verify(token, publicKey as Secret, {
-        algorithms: ['RS256'],
-      }) as { sub?: string; email?: string };
+
+      const payload = verify(token, secret as Secret, {
+        algorithms: ['HS256'],
+      }) as { sub?: string; email?: string; name?: string; role?: string };
+
+      if (!payload.sub || !payload.email) {
+        throw new UnauthorizedException('Invalid token payload');
+      }
+
       request.user = {
         externalUserId: payload.sub,
         email: payload.email,
+        name: payload.name,
+        role: payload.role,
       };
       return true;
     } catch {
@@ -39,6 +50,11 @@ export class JwtAuthGuard implements CanActivate {
 
 declare module 'express' {
   interface Request {
-    user?: { externalUserId?: string; email?: string };
+    user?: {
+      externalUserId?: string;
+      email?: string;
+      name?: string;
+      role?: string;
+    };
   }
 }
