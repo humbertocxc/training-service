@@ -1,70 +1,58 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Exercise } from '@prisma/client';
-import { ExerciseCategory } from './exercise.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateExerciseDto } from './dto/create-exercise.dto';
+import { UpdateExerciseDto } from './dto/update-exercise.dto';
 
 @Injectable()
-export class ExerciseService implements OnModuleInit {
+export class ExerciseService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async onModuleInit(): Promise<void> {
-    console.log('🌱 Seeding exercises on app startup...');
-    await this.seedExercises();
-    console.log('✅ Exercise seeding completed');
+  async create(dto: CreateExerciseDto): Promise<Exercise> {
+    const exercise = await this.prisma.exercise.create({
+      data: {
+        name: dto.name,
+        category: dto.category,
+        description: dto.description,
+        mediaUrl: dto.mediaUrl,
+        imageId: dto.imageId,
+      },
+    });
+    return exercise;
   }
 
-  async seedExercises(): Promise<void> {
-    const defaultExercises = [
-      {
-        name: 'Push Up',
-        category: ExerciseCategory.PUSH,
-        description: 'A basic push exercise.',
-        mediaUrl: null,
-        imageId: null,
-      },
-      {
-        name: 'Pull Up',
-        category: ExerciseCategory.PULL,
-        description: 'A basic pull exercise.',
-        mediaUrl: null,
-        imageId: null,
-      },
-      {
-        name: 'Plank',
-        category: ExerciseCategory.CORE,
-        description: 'Core stability exercise.',
-        mediaUrl: null,
-        imageId: null,
-      },
-      {
-        name: 'Squat',
-        category: ExerciseCategory.LEGS,
-        description: 'Leg strength exercise.',
-        mediaUrl: null,
-        imageId: null,
-      },
-      {
-        name: 'Handstand',
-        category: ExerciseCategory.SKILL,
-        description: 'Skill-based exercise.',
-        mediaUrl: null,
-        imageId: null,
-      },
-    ];
-    for (const ex of defaultExercises) {
-      await this.prisma.exercise.upsert({
-        where: { name: ex.name },
-        update: {},
-        create: ex,
-      });
-    }
-  }
-
-  findAll(): Promise<Exercise[]> {
+  async findAll(): Promise<Exercise[]> {
     return this.prisma.exercise.findMany();
   }
 
-  findOne(id: number): Promise<Exercise | null> {
+  async findOne(id: number): Promise<Exercise | null> {
     return this.prisma.exercise.findUnique({ where: { id } });
+  }
+
+  async update(id: number, dto: UpdateExerciseDto): Promise<Exercise> {
+    const existing = await this.findOne(id);
+    if (!existing) {
+      throw new NotFoundException(`Exercise with ID ${id} not found`);
+    }
+
+    const exercise = await this.prisma.exercise.update({
+      where: { id },
+      data: {
+        name: dto.name,
+        category: dto.category,
+        description: dto.description,
+        mediaUrl: dto.mediaUrl,
+        imageId: dto.imageId,
+      },
+    });
+    return exercise;
+  }
+
+  async delete(id: number): Promise<void> {
+    const existing = await this.findOne(id);
+    if (!existing) {
+      throw new NotFoundException(`Exercise with ID ${id} not found`);
+    }
+    await this.prisma.exercise.delete({ where: { id } });
   }
 }

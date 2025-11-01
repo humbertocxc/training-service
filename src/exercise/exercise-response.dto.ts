@@ -52,4 +52,17 @@ export class ExerciseResponseDto implements PrismaExercise {
     example: '2025-10-27T10:00:00Z',
   })
   updatedAt: Date;
+
+  static fromEntity(exercise: PrismaExercise): ExerciseResponseDto {
+    return {
+      id: exercise.id,
+      name: exercise.name,
+      category: exercise.category,
+      description: exercise.description,
+      mediaUrl: exercise.mediaUrl,
+      imageId: exercise.imageId,
+      createdAt: exercise.createdAt,
+      updatedAt: exercise.updatedAt,
+    };
+  }
 }
