@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ COPY src ./src
 
 RUN npm run build
 
-FROM node:20-alpine AS production-deps
+FROM node:24-alpine AS production-deps
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ RUN npm ci --only=production && \
 	npx prisma generate && \
 	npm cache clean --force
 
-FROM node:20-alpine AS runner
+FROM node:24-alpine AS runner
 
 WORKDIR /app
 
@@ -40,12 +40,13 @@ COPY --from=builder --chown=nestjs:nodejs /app/package*.json ./
 
 USER nestjs
 
-EXPOSE 3000
+EXPOSE 3001
 
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
+ENV PORT=3001
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+	CMD node -e "const p = process.env.PORT || 3001; require('http').get('http://localhost:' + p + '/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]

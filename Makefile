@@ -20,24 +20,26 @@ setup:
 	@bash setup.sh
 
 dev-up:
-	@echo "Starting PostgreSQL for development..."
-	@docker compose up -d
-	@echo "PostgreSQL is ready at localhost:5432"
+	@echo "Starting development services (postgres and rabbitmq)..."
+	@docker compose up -d postgres rabbitmq
+	@echo "Development services are ready (postgres at localhost:5432, rabbitmq management at localhost:15672)"
 
 dev-down:
+	@echo "Stopping development services..."
 	@docker compose down
+	@echo "Development services stopped"
 
 prod-up:
 	@echo "Starting production containers..."
-	@docker compose -f docker-compose.prod.yml up -d
-	@echo "Application is ready at http://localhost:3000"
+	@docker compose up -d
+	@echo "Application is ready at http://localhost:3001"
 
 prod-down:
-	@docker compose -f docker-compose.prod.yml down
+	@docker compose down
 
 prod-rebuild:
 	@echo "Rebuilding and starting production..."
-	@docker compose -f docker-compose.prod.yml up --build -d
+	@docker compose up --build -d
 
 logs:
 	@docker compose logs -f
@@ -46,7 +48,7 @@ logs-dev:
 	@docker compose logs -f postgres
 
 logs-prod:
-	@docker compose -f docker-compose.prod.yml logs -f
+	@docker compose logs -f
 
 migrate:
 	@npx prisma migrate dev
@@ -54,7 +56,6 @@ migrate:
 clean:
 	@echo "Removing all containers and volumes..."
 	@docker compose down -v
-	@docker compose -f docker-compose.prod.yml down -v
 	@echo "Cleaned up!"
 
 build:
