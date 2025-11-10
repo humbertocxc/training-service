@@ -11,10 +11,10 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { GoalService } from './goal.service';
+import { GoalService } from './services/goal.service';
 import { CreateGoalDto } from './dto/create-goal.dto';
 import { UpdateGoalDto } from './dto/update-goal.dto';
-import { GoalResponseDto } from './goal-response.dto';
+import { GoalResponseDto } from './dto/goal-response.dto';
 import type { Request } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
@@ -28,7 +28,7 @@ import {
   updateProgressGoalApiOperation,
   updateProgressGoalApiParam,
   updateProgressGoalApiResponseOk,
-} from './goal-response.dto';
+} from './dto/goal-response.dto';
 import {
   createGoalApiOperation,
   createGoalApiResponseCreated,

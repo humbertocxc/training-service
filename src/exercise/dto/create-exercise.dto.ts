@@ -1,8 +1,8 @@
 import { ApiProperty, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { HttpStatus } from '@nestjs/common';
 import { IsString, IsEnum, IsOptional, IsUrl } from 'class-validator';
-import { ExerciseCategory } from '../exercise.dto';
-import { ExerciseResponseDto } from '../exercise-response.dto';
+import { ExerciseCategory } from './exercise.dto';
+import { ExerciseResponseDto } from './exercise-response.dto';
 
 export class CreateExerciseDto {
   @ApiProperty({

@@ -10,8 +10,8 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { ExerciseService } from './exercise.service';
-import { ExerciseResponseDto } from './exercise-response.dto';
+import { ExerciseService } from './services/exercise.service';
+import { ExerciseResponseDto } from './dto/exercise-response.dto';
 import { CreateExerciseDto } from './dto/create-exercise.dto';
 import { UpdateExerciseDto } from './dto/update-exercise.dto';
 import {

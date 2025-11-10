@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Goal } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateGoalDto } from './dto/create-goal.dto';
-import { UpdateGoalDto } from './dto/update-goal.dto';
+import { PrismaService } from '../../prisma/prisma.service';
+import { CreateGoalDto } from '../dto/create-goal.dto';
+import { UpdateGoalDto } from '../dto/update-goal.dto';
 
 @Injectable()
 export class GoalService {

@@ -37,7 +37,7 @@ import {
   getExerciseProgressApiParam,
   getExerciseProgressApiQueryLimit,
   getExerciseProgressApiResponseOk,
-} from './session-response.dto';
+} from './dto/session-response.dto';
 import {
   createSessionApiOperation,
   createSessionApiResponseCreated,

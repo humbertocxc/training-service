@@ -8,7 +8,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { HttpStatus } from '@nestjs/common';
-import { ExerciseResponseDto } from '../exercise/exercise-response.dto';
+import { ExerciseResponseDto } from '../../exercise/dto/exercise-response.dto';
 
 export class SessionExerciseResponseDto {
   @ApiProperty({

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/swagger';
 import { HttpStatus } from '@nestjs/common';
 import { IsString, IsNumber, IsIn, IsOptional, Min } from 'class-validator';
-import { GoalResponseDto } from '../goal-response.dto';
+import { GoalResponseDto } from './goal-response.dto';
 
 export class UpdateGoalDto {
   @ApiProperty({

@@ -16,7 +16,7 @@ import {
   IsDateString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { SessionResponseDto } from '../session-response.dto';
+import { SessionResponseDto } from './session-response.dto';
 import { SessionExerciseDto } from './create-session.dto';
 
 export class UpdateSessionDto {

@@ -9,7 +9,7 @@ import {
   UseGuards,
   UnauthorizedException,
 } from '@nestjs/common';
-import { WorkoutService } from './workout.service';
+import { WorkoutService } from './services/workout.service';
 import type { CreateWorkoutDto } from './dto/create-workout.dto';
 import type { Request } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
