@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { TrainingPhase } from '@prisma/client';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '@/prisma/prisma.service';
 import { CreateTrainingPhaseDto } from './dto/create-training-phase.dto';
 import { UpdateTrainingPhaseDto } from './dto/update-training-phase.dto';
 

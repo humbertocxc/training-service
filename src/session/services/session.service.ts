@@ -3,13 +3,13 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Session, SessionExercise } from '@prisma/client';
 import { CreateSessionDto } from '../dto/create-session.dto';
 import { QuerySessionDto } from '../dto/query-session.dto';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '@/prisma/prisma.service';
 import {
   SessionCompletedEvent,
   SESSION_COMPLETED_EVENT,
-} from '../../events/session-completed.event';
-import { EventPublisherService } from '../../event-bus/event-publisher.service';
-import { SessionCompletedEventDto } from '../../event-bus/dto/session-completed-event.dto';
+} from '@/events/session-completed.event';
+import { EventPublisherService } from '@/event-bus/event-publisher.service';
+import { SessionCompletedEventDto } from '@/event-bus/dto/session-completed-event.dto';
 
 @Injectable()
 export class SessionService {

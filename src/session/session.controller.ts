@@ -14,7 +14,7 @@ import { SessionService } from './services/session.service';
 import type { CreateSessionDto } from './dto/create-session.dto';
 import { QuerySessionDto } from './dto/query-session.dto';
 import type { Request } from 'express';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import {
   sessionApiTags,
   sessionApiBearerAuth,

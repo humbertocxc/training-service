@@ -12,7 +12,7 @@ import {
 import { WorkoutService } from './services/workout.service';
 import type { CreateWorkoutDto } from './dto/create-workout.dto';
 import type { Request } from 'express';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import {
   workoutApiTags,
   workoutApiBearerAuth,

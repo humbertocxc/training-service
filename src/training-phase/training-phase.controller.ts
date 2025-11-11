@@ -40,7 +40,7 @@ import {
   deleteTrainingPhaseApiResponseOk,
 } from './dto/delete-training-phase.dto';
 import type { Request } from 'express';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 
 @ApiTags('training-phases')
 @ApiBearerAuth('JWT-auth')
