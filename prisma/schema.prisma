@@ -35,9 +35,9 @@ model Exercise {
   description      String
   mediaUrl         String?
   imageId          String?
-  primaryMuscles   String[] // Array of muscle groups
-  progressionGroup String? // Optional grouping like "push-up", "pull-up"
-  progressionLevel Int? // Optional level within progression (1, 2, 3, etc.)
+  primaryMuscles   String[]
+  progressionGroup String?
+  progressionLevel Int?
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @default(now()) @updatedAt
   WorkoutExercise  WorkoutExercise[]
@@ -53,7 +53,7 @@ model Workout {
   focusTags       String[]          @default([])
   priority        Priority          @default(PRIMARY)
   type            WorkoutType
-  division        String // e.g., "Push", "Pull", "Full Body", "Legs"
+  division        String
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @default(now()) @updatedAt
   exercises       WorkoutExercise[]
@@ -86,7 +86,7 @@ model Session {
   notes           String?
   priority        Priority          @default(PRIMARY)
   type            WorkoutType
-  division        String // e.g., "Push", "Pull", "Full Body", "Legs"
+  division        String
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @default(now()) @updatedAt
   exercises       SessionExercise[]
@@ -98,11 +98,12 @@ model SessionExercise {
   sessionId  Int
   exercise   Exercise @relation(fields: [exerciseId], references: [id])
   exerciseId Int
-  sets       Int
+  setNumber  Int
   reps       Int
-  load       Float    @default(0) // kg or % bodyweight
-  rpe        Float?   // Rate of Perceived Exertion (1-10)
-  tonnage    Float    @default(0) // Auto-computed: load × reps × sets
+  load       Float    @default(0)
+  rest       Int?
+  rpe        Float?
+  tonnage    Float    @default(0)
   notes      String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now()) @updatedAt
@@ -112,7 +113,7 @@ model Goal {
   id              Int             @id @default(autoincrement())
   externalUserId  String
   name            String
-  type            String          // 'reps', 'load', 'time', 'skill'
+  type            String
   targetValue     Float
   currentValue    Float           @default(0)
   progress        Float           @default(0) // percentage 0-100

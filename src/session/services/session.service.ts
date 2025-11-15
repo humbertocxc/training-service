@@ -3,6 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Session, SessionExercise } from '@prisma/client';
 import { CreateSessionDto } from '../dto/create-session.dto';
 import { QuerySessionDto } from '../dto/query-session.dto';
+import { UpdateSessionDto } from '../dto/update-session.dto';
 import { PrismaService } from '@/prisma/prisma.service';
 import {
   SessionCompletedEvent,
@@ -23,6 +24,17 @@ export class SessionService {
     externalUserId: string,
     dto: CreateSessionDto,
   ): Promise<Session> {
+    const exerciseIds = [...new Set(dto.exercises.map((e) => e.exerciseId))];
+    const existingExercises = await this.prisma.exercise.findMany({
+      where: { id: { in: exerciseIds } },
+      select: { id: true },
+    });
+    const existingIds = existingExercises.map((e) => e.id);
+    const invalidIds = exerciseIds.filter((id) => !existingIds.includes(id));
+    if (invalidIds.length > 0) {
+      throw new Error(`Invalid exercise IDs: ${invalidIds.join(', ')}`);
+    }
+
     const data: any = {
       externalUserId,
       groupExternalId: dto.groupExternalId,
@@ -33,17 +45,16 @@ export class SessionService {
       type: dto.type,
       division: dto.division,
       exercises: {
-        create: dto.exerciseIds.map((exerciseId) => {
-          return {
-            exercise: { connect: { id: exerciseId } },
-            reps: 0,
-            sets: 0,
-            load: 0,
-            rpe: null,
-            tonnage: 0,
-            notes: null,
-          };
-        }),
+        create: dto.exercises.map((exercise) => ({
+          exercise: { connect: { id: exercise.exerciseId } },
+          setNumber: exercise.setNumber,
+          reps: exercise.reps,
+          load: exercise.load,
+          rest: exercise.rest,
+          rpe: exercise.rpe,
+          tonnage: exercise.load * exercise.reps,
+          notes: exercise.notes,
+        })),
       },
     };
 
@@ -62,23 +73,71 @@ export class SessionService {
 
     return created as unknown as Session;
   }
+
+  async update(
+    sessionId: number,
+    externalUserId: string,
+    dto: UpdateSessionDto,
+  ): Promise<Session> {
+    const existingSession = await this.prisma.session.findFirst({
+      where: { id: sessionId, externalUserId },
+      include: { exercises: true },
+    });
+
+    if (!existingSession) {
+      throw new Error('Session not found or does not belong to user');
+    }
+
+    const updateData: any = {};
+
+    if (dto.workoutId !== undefined) updateData.workoutId = dto.workoutId;
+    if (dto.groupExternalId !== undefined)
+      updateData.groupExternalId = dto.groupExternalId;
+    if (dto.date !== undefined) updateData.date = new Date(dto.date);
+    if (dto.duration !== undefined) updateData.duration = dto.duration;
+    if (dto.notes !== undefined) updateData.notes = dto.notes;
+
+    if (dto.exercises !== undefined) {
+      // Delete existing exercises and create new ones
+      updateData.exercises = {
+        deleteMany: {},
+        create: dto.exercises.map((exercise) => ({
+          exercise: { connect: { id: exercise.exerciseId } },
+          setNumber: exercise.setNumber,
+          reps: exercise.reps,
+          load: exercise.load,
+          rest: exercise.rest,
+          rpe: exercise.rpe,
+          tonnage: exercise.load * exercise.reps,
+          notes: exercise.notes,
+        })),
+      };
+    }
+
+    const updated = await this.prisma.session.update({
+      where: { id: sessionId },
+      data: updateData,
+      include: { exercises: true },
+    });
+
+    return updated as unknown as Session;
+  }
+
   private emitSessionCompletedEvent(
     session: Session & { exercises: SessionExercise[] },
   ): void {
     const exercises = session.exercises.map((ex) => ({
       exerciseId: ex.exerciseId,
-      sets: ex.sets,
+      setNumber: ex.setNumber,
       reps: ex.reps,
       load: ex.load,
+      rest: ex.rest,
       rpe: ex.rpe ?? undefined,
       tonnage: ex.tonnage,
     }));
 
     const totalTonnage = exercises.reduce((sum, ex) => sum + ex.tonnage, 0);
-    const totalVolume = exercises.reduce(
-      (sum, ex) => sum + ex.reps * ex.sets,
-      0,
-    );
+    const totalVolume = exercises.reduce((sum, ex) => sum + ex.reps, 0);
     const rpeValues = exercises
       .map((ex) => ex.rpe)
       .filter((r): r is number => r !== undefined);
@@ -171,7 +230,7 @@ export class SessionService {
     exerciseId: number,
     limit?: number,
   ) {
-    const sessions = await this.prisma.sessionExercise.findMany({
+    const sessionExercises = await this.prisma.sessionExercise.findMany({
       where: {
         exerciseId,
         session: {
@@ -202,36 +261,66 @@ export class SessionService {
       take: limit || 50,
     });
 
-    const history = sessions.map((s) => ({
-      sessionId: s.session.id,
-      date: s.session.date,
-      sets: s.sets,
-      reps: s.reps,
-      load: s.load,
-      rpe: s.rpe,
-      tonnage: s.tonnage,
-      notes: s.notes,
-    }));
+    const sessionMap = new Map<
+      number,
+      {
+        sessionId: number;
+        date: Date;
+        sets: Array<{
+          setNumber: number;
+          reps: number;
+          load: number;
+          rest?: number;
+          rpe?: number;
+          tonnage: number;
+          notes?: string;
+        }>;
+      }
+    >();
 
+    for (const se of sessionExercises) {
+      if (!sessionMap.has(se.sessionId)) {
+        sessionMap.set(se.sessionId, {
+          sessionId: se.sessionId,
+          date: se.session.date,
+          sets: [],
+        });
+      }
+      sessionMap.get(se.sessionId)!.sets.push({
+        setNumber: se.setNumber,
+        reps: se.reps,
+        load: se.load,
+        rest: se.rest ?? undefined,
+        rpe: se.rpe ?? undefined,
+        tonnage: se.tonnage,
+        notes: se.notes ?? undefined,
+      });
+    }
+
+    const history = Array.from(sessionMap.values()).sort(
+      (a, b) => b.date.getTime() - a.date.getTime(),
+    );
+
+    const allSets = sessionExercises;
     const aggregates = {
-      totalSessions: sessions.length,
-      totalVolume: sessions.reduce((sum, s) => sum + s.reps * s.sets, 0),
-      totalTonnage: sessions.reduce((sum, s) => sum + s.tonnage, 0),
-      averageLoad: sessions.length
-        ? sessions.reduce((sum, s) => sum + s.load, 0) / sessions.length
+      totalSessions: sessionMap.size,
+      totalVolume: allSets.reduce((sum, s) => sum + s.reps, 0),
+      totalTonnage: allSets.reduce((sum, s) => sum + s.tonnage, 0),
+      averageLoad: allSets.length
+        ? allSets.reduce((sum, s) => sum + s.load, 0) / allSets.length
         : 0,
       averageRpe:
-        sessions.filter((s) => s.rpe !== null).length > 0
-          ? sessions
+        allSets.filter((s) => s.rpe !== null).length > 0
+          ? allSets
               .filter((s) => s.rpe !== null)
               .reduce((sum, s, _, arr) => sum + (s.rpe || 0) / arr.length, 0)
           : 0,
-      maxLoad: Math.max(...sessions.map((s) => s.load), 0),
-      maxReps: Math.max(...sessions.map((s) => s.reps), 0),
+      maxLoad: Math.max(...allSets.map((s) => s.load), 0),
+      maxReps: Math.max(...allSets.map((s) => s.reps), 0),
     };
 
     return {
-      exercise: sessions[0]?.exercise,
+      exercise: sessionExercises[0]?.exercise,
       history,
       aggregates,
     };

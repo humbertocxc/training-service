@@ -13,7 +13,9 @@ import {
   ArrayMinSize,
   registerDecorator,
   ValidationOptions,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { SessionResponseDto } from './session-response.dto';
 
 function IsNotFutureDated(validationOptions?: ValidationOptions) {
@@ -49,10 +51,10 @@ export class SessionExerciseDto {
   @IsInt()
   exerciseId: number;
 
-  @ApiProperty({ example: 3, description: 'Number of sets' })
+  @ApiProperty({ example: 1, description: 'Set number within the exercise' })
   @IsInt()
   @Min(1)
-  sets: number;
+  setNumber: number;
 
   @ApiProperty({ example: 5, description: 'Number of reps' })
   @IsInt()
@@ -63,6 +65,16 @@ export class SessionExerciseDto {
   @IsInt()
   @Min(0)
   load: number;
+
+  @ApiProperty({
+    example: 60,
+    required: false,
+    description: 'Rest time in seconds between sets',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  rest?: number;
 
   @ApiProperty({
     example: 8,
@@ -148,15 +160,34 @@ export class CreateSessionDto {
   division: string;
 
   @ApiProperty({
-    type: [Number],
-    description:
-      'Array of exercise IDs performed in the session. Invalid IDs will be silently ignored.',
-    example: [1, 2, 3],
+    type: [SessionExerciseDto],
+    description: 'Exercises performed in the session with per-set details',
+    example: [
+      {
+        exerciseId: 1,
+        setNumber: 1,
+        reps: 10,
+        load: 20,
+        rest: 60,
+        rpe: 8,
+        notes: 'Felt strong',
+      },
+      {
+        exerciseId: 1,
+        setNumber: 2,
+        reps: 8,
+        load: 25,
+        rest: 90,
+        rpe: 9,
+        notes: 'Last rep was tough',
+      },
+    ],
   })
   @IsArray()
   @ArrayMinSize(1)
-  @IsInt({ each: true })
-  exerciseIds: number[];
+  @ValidateNested({ each: true })
+  @Type(() => SessionExerciseDto)
+  exercises: SessionExerciseDto[];
 }
 
 export const createSessionApiOperation = ApiOperation({

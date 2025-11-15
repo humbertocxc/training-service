@@ -7,9 +7,10 @@ export interface SessionCompletedEvent {
   duration: number;
   exercises: Array<{
     exerciseId: number;
-    sets: number;
+    setNumber: number;
     reps: number;
     load: number;
+    rest: number | null;
     rpe?: number;
     tonnage: number;
   }>;

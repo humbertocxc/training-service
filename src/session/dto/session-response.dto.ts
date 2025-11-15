@@ -24,16 +24,44 @@ export class SessionExerciseResponseDto {
   exercise: ExerciseResponseDto;
 
   @ApiProperty({
+    description: 'Set number within the exercise',
+    example: 1,
+  })
+  setNumber: number;
+
+  @ApiProperty({
     description: 'Actual reps performed',
     example: 10,
   })
-  actualReps: number;
+  reps: number;
 
   @ApiProperty({
-    description: 'Number of sets performed',
-    example: 3,
+    description: 'Load used',
+    example: 20,
   })
-  sets: number;
+  load: number;
+
+  @ApiProperty({
+    description: 'Rest time in seconds',
+    nullable: true,
+    required: false,
+    example: 60,
+  })
+  rest: number | null;
+
+  @ApiProperty({
+    description: 'Rate of Perceived Exertion',
+    nullable: true,
+    required: false,
+    example: 8,
+  })
+  rpe: number | null;
+
+  @ApiProperty({
+    description: 'Tonnage (load × reps)',
+    example: 200,
+  })
+  tonnage: number;
 
   @ApiProperty({
     description: 'Exercise-specific notes',

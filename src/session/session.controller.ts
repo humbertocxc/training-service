@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
   Req,
   Param,
@@ -10,8 +11,10 @@ import {
   Query,
   ParseIntPipe,
 } from '@nestjs/common';
+import { ApiBody } from '@nestjs/swagger';
 import { SessionService } from './services/session.service';
-import type { CreateSessionDto } from './dto/create-session.dto';
+import { CreateSessionDto } from './dto/create-session.dto';
+import { UpdateSessionDto } from './dto/update-session.dto';
 import { QuerySessionDto } from './dto/query-session.dto';
 import type { Request } from 'express';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
@@ -45,6 +48,15 @@ import {
   createSessionApiResponseUnauthorized,
   createSessionApiResponseForbidden,
 } from './dto/create-session.dto';
+import {
+  updateSessionApiOperation,
+  updateSessionApiParam,
+  updateSessionApiResponseOk,
+  updateSessionApiResponseBadRequest,
+  updateSessionApiResponseUnauthorized,
+  updateSessionApiResponseForbidden,
+  updateSessionApiResponseNotFound,
+} from './dto/update-session.dto';
 
 @sessionApiTags
 @sessionApiBearerAuth
@@ -62,6 +74,7 @@ export class SessionController {
   }
 
   @Post()
+  @ApiBody({ type: CreateSessionDto })
   @createSessionApiOperation
   @createSessionApiResponseCreated
   @createSessionApiResponseBadRequest
@@ -70,6 +83,24 @@ export class SessionController {
   async create(@Req() req: Request, @Body() dto: CreateSessionDto) {
     const userId = this.getUserIdOrThrow(req);
     return this.sessionService.create(userId, dto);
+  }
+
+  @Put(':id')
+  @ApiBody({ type: UpdateSessionDto })
+  @updateSessionApiOperation
+  @updateSessionApiParam
+  @updateSessionApiResponseOk
+  @updateSessionApiResponseBadRequest
+  @updateSessionApiResponseUnauthorized
+  @updateSessionApiResponseForbidden
+  @updateSessionApiResponseNotFound
+  async update(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateSessionDto,
+  ) {
+    const userId = this.getUserIdOrThrow(req);
+    return this.sessionService.update(id, userId, dto);
   }
 
   @Get()
