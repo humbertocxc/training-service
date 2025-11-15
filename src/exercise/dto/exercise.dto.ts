@@ -8,11 +8,11 @@ import {
 } from 'class-validator';
 
 export enum ExerciseCategory {
-  PUSH = 'Push',
-  PULL = 'Pull',
-  CORE = 'Core',
-  LEGS = 'Legs',
-  SKILL = 'Skill',
+  PUSH = 'PUSH',
+  PULL = 'PULL',
+  CORE = 'CORE',
+  LEGS = 'LEGS',
+  SKILL = 'SKILL',
 }
 
 export class ExerciseDto {

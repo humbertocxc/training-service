@@ -5,38 +5,44 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Seeding database...');
 
-  const defaultExercises = [
+  const defaultExercises: Array<{
+    name: string;
+    category: 'PUSH' | 'PULL' | 'CORE' | 'LEGS' | 'SKILL';
+    description: string;
+    mediaUrl: undefined;
+    imageId: undefined;
+  }> = [
     {
       name: 'Push Up',
-      category: 'Push',
+      category: 'PUSH',
       description: 'A basic push exercise.',
       mediaUrl: undefined,
       imageId: undefined,
     },
     {
       name: 'Pull Up',
-      category: 'Pull',
+      category: 'PULL',
       description: 'A basic pull exercise.',
       mediaUrl: undefined,
       imageId: undefined,
     },
     {
       name: 'Plank',
-      category: 'Core',
+      category: 'CORE',
       description: 'Core stability exercise.',
       mediaUrl: undefined,
       imageId: undefined,
     },
     {
       name: 'Squat',
-      category: 'Legs',
+      category: 'LEGS',
       description: 'Leg strength exercise.',
       mediaUrl: undefined,
       imageId: undefined,
     },
     {
       name: 'Handstand',
-      category: 'Skill',
+      category: 'SKILL',
       description: 'Skill-based exercise.',
       mediaUrl: undefined,
       imageId: undefined,

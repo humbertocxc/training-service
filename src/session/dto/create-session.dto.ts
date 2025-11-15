@@ -6,15 +6,14 @@ import {
   IsInt,
   IsOptional,
   IsString,
-  IsNumber,
+  IsEnum,
+  IsNotEmpty,
   Min,
   Max,
-  ValidateNested,
   ArrayMinSize,
   registerDecorator,
   ValidationOptions,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { SessionResponseDto } from './session-response.dto';
 
 function IsNotFutureDated(validationOptions?: ValidationOptions) {
@@ -43,46 +42,44 @@ function IsNotFutureDated(validationOptions?: ValidationOptions) {
 }
 
 export class SessionExerciseDto {
-  @ApiProperty({ description: 'Exercise id', example: 1 })
+  @ApiProperty({
+    example: 1,
+    description: 'Exercise ID',
+  })
   @IsInt()
-  @Min(1)
   exerciseId: number;
 
-  @ApiProperty({ example: 10, description: 'Reps performed per set (0-500)' })
-  @IsInt()
-  @Min(0)
-  @Max(500)
-  reps: number;
-
-  @ApiProperty({ example: 3, description: 'Sets performed (1-50)' })
+  @ApiProperty({ example: 3, description: 'Number of sets' })
   @IsInt()
   @Min(1)
-  @Max(50)
   sets: number;
 
-  @ApiProperty({
-    example: 0,
-    description: 'Load in kg or % bodyweight (0-1000)',
-    required: false,
-  })
-  @IsOptional()
-  @IsNumber()
+  @ApiProperty({ example: 5, description: 'Number of reps' })
+  @IsInt()
+  @Min(1)
+  reps: number;
+
+  @ApiProperty({ example: 20, description: 'Load (kg or % bodyweight)' })
+  @IsInt()
   @Min(0)
-  @Max(1000)
-  load?: number;
+  load: number;
 
   @ApiProperty({
-    example: 8.5,
-    description: 'Rate of Perceived Exertion (1-10)',
+    example: 8,
     required: false,
+    description: 'Rate of Perceived Exertion (1-10)',
   })
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   @Min(1)
   @Max(10)
   rpe?: number;
 
-  @ApiProperty({ example: 'Felt good', required: false })
+  @ApiProperty({
+    example: 'Felt strong today',
+    required: false,
+    description: 'Notes about the exercise',
+  })
   @IsOptional()
   @IsString()
   notes?: string;
@@ -127,14 +124,39 @@ export class CreateSessionDto {
   notes?: string;
 
   @ApiProperty({
-    type: [SessionExerciseDto],
-    description: 'Must have at least 1 exercise',
+    description: 'Priority level of the session',
+    enum: ['PRIMARY', 'SECONDARY', 'RECOVERY'],
+    example: 'PRIMARY',
+  })
+  @IsEnum(['PRIMARY', 'SECONDARY', 'RECOVERY'])
+  priority: 'PRIMARY' | 'SECONDARY' | 'RECOVERY';
+
+  @ApiProperty({
+    description: 'Type of session',
+    enum: ['STRENGTH', 'SKILL', 'MOBILITY', 'CONDITIONING'],
+    example: 'STRENGTH',
+  })
+  @IsEnum(['STRENGTH', 'SKILL', 'MOBILITY', 'CONDITIONING'])
+  type: 'STRENGTH' | 'SKILL' | 'MOBILITY' | 'CONDITIONING';
+
+  @ApiProperty({
+    description: 'Session division (e.g., Push, Pull, Full Body, Legs)',
+    example: 'Push',
+  })
+  @IsString()
+  @IsNotEmpty()
+  division: string;
+
+  @ApiProperty({
+    type: [Number],
+    description:
+      'Array of exercise IDs performed in the session. Invalid IDs will be silently ignored.',
+    example: [1, 2, 3],
   })
   @IsArray()
   @ArrayMinSize(1)
-  @ValidateNested({ each: true })
-  @Type(() => SessionExerciseDto)
-  exercises: SessionExerciseDto[];
+  @IsInt({ each: true })
+  exerciseIds: number[];
 }
 
 export const createSessionApiOperation = ApiOperation({

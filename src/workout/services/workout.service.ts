@@ -11,6 +11,14 @@ export class WorkoutService {
     externalUserId: string,
     dto: CreateWorkoutDto,
   ): Promise<Workout> {
+    const exerciseIds = dto.exercises.map((e) => e.exerciseId);
+    const validExercises = await this.prisma.exercise.findMany({
+      where: { id: { in: exerciseIds } },
+      select: { id: true },
+    });
+
+    const validExerciseIds = new Set(validExercises.map((ex) => ex.id));
+
     const created = await this.prisma.workout.create({
       data: {
         externalUserId,
@@ -18,17 +26,26 @@ export class WorkoutService {
         name: dto.name,
         notes: dto.notes,
         focusTags: dto.focusTags || [],
+        priority: dto.priority,
+        type: dto.type,
+        division: dto.division,
         exercises: {
-          create: dto.exercises.map((ex) => ({
-            exercise: { connect: { id: ex.exerciseId } },
-            sets: ex.sets,
-            reps: ex.reps,
-            rest: ex.rest ?? 60,
-            notes: ex.notes,
-          })),
+          create: dto.exercises
+            .filter((e) => validExerciseIds.has(e.exerciseId))
+            .map((e) => ({
+              exercise: { connect: { id: e.exerciseId } },
+              sets: e.sets,
+              reps: e.reps,
+              rest: e.rest,
+              notes: e.notes,
+            })),
         },
       },
-      include: { exercises: true },
+      include: {
+        exercises: {
+          include: { exercise: true },
+        },
+      },
     });
     return created;
   }

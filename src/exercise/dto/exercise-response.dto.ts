@@ -16,9 +16,10 @@ export class ExerciseResponseDto implements PrismaExercise {
 
   @ApiProperty({
     description: 'Exercise category',
-    example: 'Upper Body Pull',
+    enum: ['PUSH', 'PULL', 'LEGS', 'CORE', 'SKILL'],
+    example: 'PULL',
   })
-  category: string;
+  category: 'PUSH' | 'PULL' | 'LEGS' | 'CORE' | 'SKILL';
 
   @ApiProperty({
     description: 'Exercise description and form cues',
@@ -42,6 +43,29 @@ export class ExerciseResponseDto implements PrismaExercise {
   imageId: string | null;
 
   @ApiProperty({
+    description: 'Primary muscle groups targeted',
+    example: ['latissimus dorsi', 'biceps'],
+    type: [String],
+  })
+  primaryMuscles: string[];
+
+  @ApiProperty({
+    description: 'Progression group identifier',
+    example: 'pull-up',
+    nullable: true,
+    required: false,
+  })
+  progressionGroup: string | null;
+
+  @ApiProperty({
+    description: 'Progression level within group',
+    example: 1,
+    nullable: true,
+    required: false,
+  })
+  progressionLevel: number | null;
+
+  @ApiProperty({
     description: 'Creation timestamp',
     example: '2025-10-27T10:00:00Z',
   })
@@ -61,6 +85,9 @@ export class ExerciseResponseDto implements PrismaExercise {
       description: exercise.description,
       mediaUrl: exercise.mediaUrl,
       imageId: exercise.imageId,
+      primaryMuscles: exercise.primaryMuscles,
+      progressionGroup: exercise.progressionGroup,
+      progressionLevel: exercise.progressionLevel,
       createdAt: exercise.createdAt,
       updatedAt: exercise.updatedAt,
     };

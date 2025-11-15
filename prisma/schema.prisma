@@ -7,31 +7,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ExerciseCategory {
+  PUSH
+  PULL
+  LEGS
+  CORE
+  SKILL
+}
+
+enum Priority {
+  PRIMARY
+  SECONDARY
+  RECOVERY
+}
+
+enum WorkoutType {
+  STRENGTH
+  SKILL
+  MOBILITY
+  CONDITIONING
+}
+
 model Exercise {
-  id              Int               @id @default(autoincrement())
-  name            String            @unique
-  category        String
-  description     String
-  mediaUrl        String?
-  imageId         String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @default(now()) @updatedAt
-  WorkoutExercise WorkoutExercise[]
-  SessionExercise SessionExercise[]
+  id               Int               @id @default(autoincrement())
+  name             String            @unique
+  category         ExerciseCategory
+  description      String
+  mediaUrl         String?
+  imageId          String?
+  primaryMuscles   String[] // Array of muscle groups
+  progressionGroup String? // Optional grouping like "push-up", "pull-up"
+  progressionLevel Int? // Optional level within progression (1, 2, 3, etc.)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now()) @updatedAt
+  WorkoutExercise  WorkoutExercise[]
+  SessionExercise  SessionExercise[]
 }
 
 model Workout {
-  id                Int               @id @default(autoincrement())
-  externalUserId    String
-  groupExternalId   String?
-  name              String
-  notes             String?
-  focusTags         String[]          @default([])
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @default(now()) @updatedAt
-  exercises         WorkoutExercise[]
-  sessions          Session[]
-  TrainingPhase     TrainingPhase[]   @relation("PhaseWorkouts")
+  id              Int               @id @default(autoincrement())
+  externalUserId  String
+  groupExternalId String?
+  name            String
+  notes           String?
+  focusTags       String[]          @default([])
+  priority        Priority          @default(PRIMARY)
+  type            WorkoutType
+  division        String // e.g., "Push", "Pull", "Full Body", "Legs"
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @default(now()) @updatedAt
+  exercises       WorkoutExercise[]
+  sessions        Session[]
+  TrainingPhase   TrainingPhase[]   @relation("PhaseWorkouts")
 }
 
 model WorkoutExercise {
@@ -57,6 +84,9 @@ model Session {
   date            DateTime
   duration        Int
   notes           String?
+  priority        Priority          @default(PRIMARY)
+  type            WorkoutType
+  division        String // e.g., "Push", "Pull", "Full Body", "Legs"
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @default(now()) @updatedAt
   exercises       SessionExercise[]

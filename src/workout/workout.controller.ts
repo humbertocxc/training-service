@@ -9,8 +9,9 @@ import {
   UseGuards,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ApiBody } from '@nestjs/swagger';
 import { WorkoutService } from './services/workout.service';
-import type { CreateWorkoutDto } from './dto/create-workout.dto';
+import { CreateWorkoutDto } from './dto/create-workout.dto';
 import type { Request } from 'express';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import {
@@ -59,6 +60,7 @@ export class WorkoutController {
   }
 
   @Post()
+  @ApiBody({ type: CreateWorkoutDto })
   @createWorkoutApiOperation
   @createWorkoutApiResponseCreated
   @createWorkoutApiResponseBadRequest

@@ -23,34 +23,42 @@ export class SessionService {
     externalUserId: string,
     dto: CreateSessionDto,
   ): Promise<Session> {
-    const created = await this.prisma.session.create({
-      data: {
-        externalUserId,
-        groupExternalId: dto.groupExternalId,
-        workoutId: dto.workoutId,
-        date: new Date(dto.date),
-        duration: dto.duration,
-        notes: dto.notes,
-        exercises: {
-          create: dto.exercises.map((ex) => {
-            const load = ex.load ?? 0;
-            const tonnage = load * ex.reps * ex.sets;
-            return {
-              exercise: { connect: { id: ex.exerciseId } },
-              reps: ex.reps,
-              sets: ex.sets,
-              load,
-              rpe: ex.rpe,
-              tonnage,
-              notes: ex.notes,
-            };
-          }),
-        },
+    const data: any = {
+      externalUserId,
+      groupExternalId: dto.groupExternalId,
+      date: new Date(dto.date),
+      duration: dto.duration,
+      notes: dto.notes,
+      priority: dto.priority,
+      type: dto.type,
+      division: dto.division,
+      exercises: {
+        create: dto.exerciseIds.map((exerciseId) => {
+          return {
+            exercise: { connect: { id: exerciseId } },
+            reps: 0,
+            sets: 0,
+            load: 0,
+            rpe: null,
+            tonnage: 0,
+            notes: null,
+          };
+        }),
       },
+    };
+
+    if (dto.workoutId !== undefined) {
+      data.workoutId = dto.workoutId;
+    }
+
+    const created = await this.prisma.session.create({
+      data,
       include: { exercises: true },
     });
 
-    this.emitSessionCompletedEvent(created);
+    this.emitSessionCompletedEvent(
+      created as Session & { exercises: SessionExercise[] },
+    );
 
     return created as unknown as Session;
   }
