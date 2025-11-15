@@ -54,9 +54,6 @@ services:
       FRONTEND_URL: ${FRONTEND_URL}
       JWT_SECRET: ${JWT_SECRET}
       PORT: '${PORT:-3001}'
-      RABBITMQ_URL: ${RABBITMQ_URL}
-      RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE}
-      RABBITMQ_EXCHANGE_TYPE: ${RABBITMQ_EXCHANGE_TYPE}
     depends_on:
       postgres:
         condition: service_healthy

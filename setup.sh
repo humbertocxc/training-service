@@ -20,13 +20,13 @@ if [ "$setup_mode" = "1" ]; then
 		echo "Node.js not found (need Node.js 20+)."
 		exit 1
 	fi
-	if ! command -v npm &> /dev/null; then
-		echo "npm not found."
+	if ! command -v pnpm &> /dev/null; then
+		echo "pnpm not found."
 		exit 1
 	fi
-	echo "Node and npm found"
+	echo "Node and pnpm found"
 	echo "Installing dependencies..."
-	npm install || { echo "npm install failed"; exit 1; }
+	pnpm install || { echo "pnpm install failed"; exit 1; }
 fi
 
 if [ "$setup_mode" = "2" ] || [ "$setup_mode" = "3" ]; then
@@ -46,7 +46,7 @@ fi
 
 if [ "$setup_mode" = "1" ]; then
 	echo -e "${YELLOW}[33m Installing dependencies...${NC}"
-	npm install
+	pnpm install
 
 	if [ $? -ne 0 ]; then
 			echo -e "${RED}[31m Failed to install dependencies${NC}"
